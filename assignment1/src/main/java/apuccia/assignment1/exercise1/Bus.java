@@ -29,6 +29,8 @@ public class Bus implements Serializable {
     private transient final VetoableChangeSupport vetoableChangeSupport;
     private transient final PropertyChangeSupport propertyChangeSupport;
 
+    private final Timer timer = new Timer();
+    
     public Bus() {
         numPassengers = 20;
         capacity = 50;
@@ -54,19 +56,21 @@ public class Bus implements Serializable {
      * @throws java.beans.PropertyVetoException
      */
     public void setNumPassengers(int numPassengers) throws PropertyVetoException {
-        int oldNumPassengers = this.numPassengers;
+        int oldPassengers = this.numPassengers;
         
         if (numPassengers < capacity) {
-            vetoableChangeSupport.fireVetoableChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
+            vetoableChangeSupport.fireVetoableChange(PROP_NUMPASSENGERS, oldPassengers, numPassengers);
             setDoorOpen(true);
-            
-            try {
-                Thread.sleep(3 * 1000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Bus.class.getName()).log(Level.SEVERE, null, ex);
-            }
             this.numPassengers = numPassengers;
-            propertyChangeSupport.firePropertyChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
+                
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    setDoorOpen(false);
+                }
+            }
+            , 3 * 1000);
+            propertyChangeSupport.firePropertyChange(PROP_NUMPASSENGERS, oldPassengers, numPassengers);
         }
     }
 
@@ -146,16 +150,13 @@ public class Bus implements Serializable {
     }
     
     public void activate() {
-        Timer timer = new Timer();
-        
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 Random rand = new Random();
-                int randPassengersDrop = rand.nextInt(10);
+                int randPassengersDrop = rand.nextInt(5);
                 int newNumPassengers = randPassengersDrop > numPassengers ? 0 : numPassengers - randPassengersDrop; 
                 
-               
                 try {
                     setNumPassengers(newNumPassengers);
                 } catch (PropertyVetoException ex) {
@@ -163,6 +164,6 @@ public class Bus implements Serializable {
                 }
             }
         }
-        , 0, 10*1000);
+        , 10*1000);
     }
 }
