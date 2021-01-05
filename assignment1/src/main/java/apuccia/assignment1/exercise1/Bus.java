@@ -7,6 +7,11 @@ package apuccia.assignment1.exercise1;
 
 import java.beans.*;
 import java.io.Serializable;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -50,9 +55,19 @@ public class Bus implements Serializable {
      */
     public void setNumPassengers(int numPassengers) throws PropertyVetoException {
         int oldNumPassengers = this.numPassengers;
-        vetoableChangeSupport.fireVetoableChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
-        this.numPassengers = numPassengers;
-        propertyChangeSupport.firePropertyChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
+        
+        if (numPassengers < capacity) {
+            vetoableChangeSupport.fireVetoableChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
+            setDoorOpen(true);
+            
+            try {
+                Thread.sleep(3 * 1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Bus.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            this.numPassengers = numPassengers;
+            propertyChangeSupport.firePropertyChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
+        }
     }
 
     /**
@@ -130,5 +145,24 @@ public class Bus implements Serializable {
         this.capacity = capacity;
     }
     
-    
+    public void activate() {
+        Timer timer = new Timer();
+        
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Random rand = new Random();
+                int randPassengersDrop = rand.nextInt(10);
+                int newNumPassengers = randPassengersDrop > numPassengers ? 0 : numPassengers - randPassengersDrop; 
+                
+               
+                try {
+                    setNumPassengers(newNumPassengers);
+                } catch (PropertyVetoException ex) {
+                    Logger.getLogger(Bus.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+        , 0, 10*1000);
+    }
 }
