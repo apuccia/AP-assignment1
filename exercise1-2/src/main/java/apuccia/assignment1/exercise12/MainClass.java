@@ -30,15 +30,28 @@ public class MainClass {
                 114.15f, 201.3f, 237.1, "AH451NB");
         
         XMLSerializer serializer = new XMLSerializer();
+        XMLDeserializer deserializer = new XMLDeserializer();
+        
+        State[] states = new State[2];
+
+        states[0] = new State("Italy", 60234639, 199.70);
+        states[1] = new State("France", 68303234, 101);
         
         try {
             serializer.serialize(cars, "cars.xml");
+            serializer.serialize(states, "states.xml");
         } catch (IllegalAccessException ex) {
             Logger.getLogger(MainClass.class.getName()).log(Level.SEVERE, null,
                     ex);
         }
         
+        Object[] deserializedStates = deserializer.deserialize("states.xml", State.class);
         
+        for (Object state : deserializedStates) {
+            System.out.println("State name: " + ((State) state).getName());
+            System.out.println("State population: " + ((State) state).getPopulation());
+            System.out.println("State density: " + ((State) state).getPopulationDensity());
+        }
     }
 
 }
