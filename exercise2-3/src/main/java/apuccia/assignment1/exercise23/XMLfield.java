@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package apuccia.assignment1.exercise12;
+package apuccia.assignment1.exercise23;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -15,7 +15,8 @@ import java.lang.annotation.Target;
  * @author Alessandro Puccia
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
-public @interface XMLable {
-    
+@Target({ElementType.FIELD})
+public @interface XMLfield {
+    String type ();
+    String name () default "";
 }
