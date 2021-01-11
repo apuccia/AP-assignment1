@@ -56,21 +56,25 @@ public class Bus implements Serializable {
      * @throws java.beans.PropertyVetoException
      */
     public void setNumPassengers(int numPassengers) throws PropertyVetoException {
-        int oldPassengers = this.numPassengers;
+        int oldNumPassengers = this.numPassengers;
         
         if (numPassengers < capacity) {
-            vetoableChangeSupport.fireVetoableChange(PROP_NUMPASSENGERS, oldPassengers, numPassengers);
-            setDoorOpen(true);
-            this.numPassengers = numPassengers;
-                
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    setDoorOpen(false);
+            vetoableChangeSupport.fireVetoableChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
+            if (numPassengers > oldNumPassengers) {
+                setDoorOpen(true);
+                   
+                // close the doors after 3 seconds
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        setDoorOpen(false);
+                    }
                 }
+                , 3 * 1000);
             }
-            , 3 * 1000);
-            propertyChangeSupport.firePropertyChange(PROP_NUMPASSENGERS, oldPassengers, numPassengers);
+            
+            this.numPassengers = numPassengers;
+            propertyChangeSupport.firePropertyChange(PROP_NUMPASSENGERS, oldNumPassengers, numPassengers);
         }
     }
 
@@ -150,7 +154,7 @@ public class Bus implements Serializable {
     }
     
     public void activate() {
-        timer.schedule(new TimerTask() {
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 Random rand = new Random();
@@ -163,7 +167,7 @@ public class Bus implements Serializable {
                     Logger.getLogger(Bus.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }
-        , 10*1000);
+        },
+        10*1000, 10*1000);
     }
 }

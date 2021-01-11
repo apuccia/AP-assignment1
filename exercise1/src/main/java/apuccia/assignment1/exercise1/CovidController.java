@@ -42,9 +42,8 @@ public class CovidController implements Serializable, VetoableChangeListener {
         if (evt.getNewValue().getClass().equals(Integer.class)) {
             int value = (int) evt.getNewValue();
 
-            System.out.println(value);
             if (value > reducedCapacity) {
-                throw new PropertyVetoException("Booking is cancelled", evt);
+                throw new PropertyVetoException("Booking not accepted due to Covid-19 measures", evt);
             }
         }
     }
