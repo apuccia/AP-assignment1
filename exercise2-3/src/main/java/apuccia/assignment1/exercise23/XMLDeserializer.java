@@ -36,6 +36,7 @@ public class XMLDeserializer {
     public XMLDeserializer() {
     }
     
+    // to deserialize, the xml file name and the classfile of the target objects are needed
     public Object[] deserialize(String fileName, Class objectsClass) {
         if (isSerializable(objectsClass)) {
             try {
@@ -52,6 +53,7 @@ public class XMLDeserializer {
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     Node node = nodeList.item(i);
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        // creating the object with the empty constructor
                         Object obj = getEmptyConstructor(objectsClass).newInstance();
                         
                         for (Field field : objectsClass.getDeclaredFields()) {
@@ -67,11 +69,11 @@ public class XMLDeserializer {
                                 XMLFieldToDeserialize = elementNode.getElementsByTagName(annotation.name()).item(0);
                             }
                                 
-                                
+                            
+                            // deserializing the field
                             Object deserializedField = deserializeField(
                                     XMLFieldToDeserialize.getTextContent(),
                                     XMLFieldToDeserialize.getAttributes().getNamedItem("type").getNodeValue());
-                            System.out.println(deserializedField);
                                 
                             try {
                                 field.set(obj, deserializedField);
@@ -99,19 +101,20 @@ public class XMLDeserializer {
     }
     
     public boolean isSerializable(Class className) {
-        if (!className.isAnnotationPresent(XMLable.class) && getEmptyConstructor(className) != null) {
+        // checking that the class is annotated and contains the empty constructor
+        if (!className.isAnnotationPresent(XMLable.class) || getEmptyConstructor(className) == null) {
             return false;
         }
         
         Field[] classFields = className.getDeclaredFields();
         
+        // each field must be annotated, non static and of primitive or String type
         for (Field field : classFields) {
             field.setAccessible(true);
             
             if (Modifier.isStatic(field.getModifiers())
-                    && (!field.getType().isPrimitive() || !field.getType().equals(String.class))
-                    && !field.isAnnotationPresent(XMLfield.class)) {
-                
+                    || (!field.getType().isPrimitive() && !field.getType().equals(String.class))
+                    || !field.isAnnotationPresent(XMLfield.class)) {
                 return false;
             }
         }
@@ -125,14 +128,12 @@ public class XMLDeserializer {
                     } catch (NoSuchMethodException ex) {
             Logger.getLogger(XMLDeserializer.class.getName()).
                     log(Level.SEVERE, null, ex);
-            
-            return null;
         } catch (SecurityException ex) {
             Logger.getLogger(XMLDeserializer.class.getName()).
                     log(Level.SEVERE, null, ex);
-            
-            return null;
         }
+        
+        return null;
     }
     
     private Object deserializeField(String fieldToDeserialize, String type) {

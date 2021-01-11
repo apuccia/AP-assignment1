@@ -49,8 +49,10 @@ public class XMLSerializer {
 
                 for (Field field : fields) {
                     XMLfield fieldAnnotation = field.getAnnotation(XMLfield.class);
+                    // used in order to access private fields
                     field.setAccessible(true);
 
+                    // checks that the field is annotated and belongs to primitive or String type
                     if (fieldAnnotation != null && checkFieldType(field)) {
                         
                         String name = fieldAnnotation.name().equals("") ? 
@@ -71,7 +73,6 @@ public class XMLSerializer {
             }
             stringToBuild.append("</Array>");
             
-            System.out.println(stringToBuild.toString());
             try (FileWriter fw = new FileWriter(new File(fileName), encoding);
                 BufferedWriter writer = new BufferedWriter(fw)) {
 

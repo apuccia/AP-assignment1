@@ -11,7 +11,6 @@ package apuccia.assignment1.exercise23;
  */
 @XMLable
 public class Car {
-
     @XMLfield(type = "String")
     private final String manufacturer;
     @XMLfield(type = "String")

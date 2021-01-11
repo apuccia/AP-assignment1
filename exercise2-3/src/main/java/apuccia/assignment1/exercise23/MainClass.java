@@ -45,6 +45,12 @@ public class MainClass {
                     ex);
         }
         
+        
+        Object[] deserializedCars = deserializer.deserialize("cars.xml", Car.class);
+        if (deserializedCars == null) {
+            System.out.println("Objects of type Car cannot be deserialized");
+        }
+        
         Object[] deserializedStates = deserializer.deserialize("states.xml", State.class);
         
         for (Object state : deserializedStates) {
@@ -52,6 +58,7 @@ public class MainClass {
             System.out.println("State population: " + ((State) state).getPopulation());
             System.out.println("State density: " + ((State) state).getPopulationDensity());
         }
+        
     }
 
 }
